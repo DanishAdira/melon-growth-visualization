@@ -1,0 +1,20 @@
+.headerContainer {
+  background     : linear-gradient(135deg, #6db0d6 0%, #6dd6b7 100%);
+  color          : #ffffff;
+  padding        : 1.25rem 2rem;
+  display        : flex;
+  align-items    : center;
+  justify-content: center; /* コンテンツ全体を中央寄せ */
+  box-shadow     : 0 4px 12px rgba(0, 77, 64, 0.08);
+  position       : relative;
+  z-index        : 10;
+  text-align     : center; /* 内部テキストを中央寄せ */
+}
+
+.title {
+  margin        : 0;
+  font-size     : 1.75rem;
+  font-weight   : 700;
+  letter-spacing: 0.25px;
+  text-align    : center;
+}
