@@ -1,28 +1,53 @@
 import React from 'react';
-import { Paper, FormControl, InputLabel, Select, MenuItem, Slider, Typography, Stack, SelectChangeEvent } from '@mui/material';
+import { 
+  Paper, FormControl, InputLabel, Select, MenuItem, 
+  Slider, Typography, Stack, SelectChangeEvent, 
+  Switch, FormControlLabel, Box, Divider
+} from '@mui/material';
 import { MelonInfo } from '../types';
 
 interface Props {
+  deviceList: string[];
+  selectedDeviceId: string;
+  onDeviceChange: (id: string) => void;
+
   melons: MelonInfo[];
   selectedMelonId: string;
   onMelonChange: (id: string) => void;
+
   selectedDateIndex: number;
-  dateList: string[]; // 利用可能な日付リスト
+  dateList: string[]; 
   onDateChange: (index: number) => void;
-  selectedTime: number; // 6-18
+  selectedTime: number; 
   onTimeChange: (time: number) => void;
+
+  viewMode: 'summary' | 'realtime';
+  onViewModeChange: (mode: 'summary' | 'realtime') => void;
 }
 
 export const ControlPanel: React.FC<Props> = ({
+  deviceList, selectedDeviceId, onDeviceChange,
   melons, selectedMelonId, onMelonChange,
   selectedDateIndex, dateList, onDateChange,
-  selectedTime, onTimeChange
+  selectedTime, onTimeChange,
+  viewMode, onViewModeChange
 }) => {
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
-      <Stack direction="row" spacing={4} alignItems="center">
-        {/* メロン選択 */}
-        <FormControl size="small" sx={{ minWidth: 150 }}>
+      <Stack direction="row" spacing={3} alignItems="center" flexWrap="wrap">
+        
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>デバイスID</InputLabel>
+          <Select
+            value={selectedDeviceId}
+            label="Device ID"
+            onChange={(e: SelectChangeEvent) => onDeviceChange(e.target.value)}
+          >
+            {deviceList.map(id => <MenuItem key={id} value={id}>{id}</MenuItem>)}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 120 }}>
           <InputLabel>メロンID</InputLabel>
           <Select
             value={selectedMelonId}
@@ -33,23 +58,25 @@ export const ControlPanel: React.FC<Props> = ({
           </Select>
         </FormControl>
 
-        {/* 日付スクロール (スライダー) */}
-        <Stack sx={{ flexGrow: 1 }} spacing={1}>
-          <Typography variant="caption">撮影日選択： {dateList[selectedDateIndex]}</Typography>
+        <Divider orientation="vertical" flexItem />
+
+        <Stack sx={{ flexGrow: 1, minWidth: 200 }} spacing={1}>
+          <Typography variant="caption">
+             撮影日: {dateList[selectedDateIndex] || '---'}
+          </Typography>
           <Slider
             value={selectedDateIndex}
             min={0}
-            max={dateList.length - 1}
+            max={Math.max(0, dateList.length - 1)}
             step={1}
             onChange={(_, val) => onDateChange(val as number)}
-            valueLabelDisplay="auto"
-            valueLabelFormat={(idx) => dateList[idx]}
+            disabled={dateList.length === 0}
+            size="small"
           />
         </Stack>
 
-        {/* 時間選択 (6:00 - 18:00) */}
-        <Stack spacing={1} sx={{ width: 150 }}>
-          <Typography variant="caption">撮影時間帯選択： {selectedTime}:00</Typography>
+        <Stack spacing={1} sx={{ width: 120 }}>
+          <Typography variant="caption">撮影時間: {selectedTime}:00</Typography>
           <Slider
             value={selectedTime}
             min={6}
@@ -57,8 +84,25 @@ export const ControlPanel: React.FC<Props> = ({
             step={1}
             marks
             onChange={(_, val) => onTimeChange(val as number)}
+            size="small"
           />
         </Stack>
+
+        <Divider orientation="vertical" flexItem />
+
+        <Box>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={viewMode === 'realtime'}
+                onChange={(e) => onViewModeChange(e.target.checked ? 'realtime' : 'summary')}
+                color="primary"
+              />
+            }
+            label={viewMode === 'realtime' ? "リアルタイム計測状況" : "生育サマリー"}
+          />
+        </Box>
+
       </Stack>
     </Paper>
   );

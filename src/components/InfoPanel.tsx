@@ -1,15 +1,15 @@
-// InfoPanel.tsx
 import React from 'react';
-import { Paper, Typography, Chip } from '@mui/material';
-import Grid from '@mui/material/Grid'; // ★ 新Grid
+import { Paper, Typography, Chip, Button, Box } from '@mui/material';
+import Grid from '@mui/material/Grid'; // Grid v2
 import { GrowthSummary, MelonInfo } from '../types';
 
 interface Props {
   info: MelonInfo;
   summary: GrowthSummary;
+  onCheckStatus: () => void;
 }
 
-export const InfoPanel: React.FC<Props> = ({ info, summary }) => {
+export const InfoPanel: React.FC<Props> = ({ info, summary, onCheckStatus }) => {
   const metrics = [
     { key: 'estimated_volume_px3', label: '肥大度合い (推定体積)' },
     { key: 'density', label: '網目密度' },
@@ -38,8 +38,8 @@ export const InfoPanel: React.FC<Props> = ({ info, summary }) => {
 
       <Grid container spacing={1} sx={{ width: '100%' }}>
         {metrics.map((m) => {
-          const val = summary.actual_metrics[m.key] ?? 0;
-          const diff = summary.deviation[m.key] ?? 0;
+          const val = summary.actual_metrics?.[m.key] ?? 0;
+          const diff = summary.deviation?.[m.key] ?? 0;
           const color = diff >= 0 ? 'success' : 'error';
 
           return (

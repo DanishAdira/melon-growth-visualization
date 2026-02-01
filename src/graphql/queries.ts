@@ -77,3 +77,20 @@ export const getGrowthSummaries = /* GraphQL */ `
     }
   }
 `;
+// センサーデータの取得
+export const listSensorData = /* GraphQL */ `
+  query ListSensorData($deviceID: String!, $limit: Int, $nextToken: String) {
+    listSensorData(deviceID: $deviceID, limit: $limit, nextToken: $nextToken) {
+      items {
+        deviceID
+        timestamp
+        temperature
+        humidity
+        i_v_light
+        u_v_light
+        imageKeys
+      }
+      nextToken
+    }
+  }
+`;
