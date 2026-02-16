@@ -1,5 +1,36 @@
 // src/graphql/queries.ts
 
+// 季節ごとのメロン一覧取得 (Registry)
+export const listMelonsBySeason = /* GraphQL */ `
+  query ListMelonsBySeason($season: String!, $limit: Int, $nextToken: String) {
+    listMelonsBySeason(season: $season, limit: $limit, nextToken: $nextToken) {
+      items {
+        melonID
+        season
+        deviceID
+        pollinationDate
+        status
+        harvestDate
+      }
+      nextToken
+    }
+  }
+`;
+
+// 特定のメロン情報取得
+export const getMelon = /* GraphQL */ `
+  query GetMelon($melonID: String!) {
+    getMelon(melonID: $melonID) {
+      melonID
+      season
+      deviceID
+      pollinationDate
+      status
+      harvestDate
+    }
+  }
+`;
+
 // メロン一覧（DeviceMap）の取得
 export const listDeviceMaps = /* GraphQL */ `
   query ListDeviceMaps {

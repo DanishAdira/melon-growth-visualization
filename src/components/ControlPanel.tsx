@@ -7,6 +7,14 @@ import {
 import { MelonInfo } from '../types';
 
 interface Props {
+  seasonList: string[];
+  selectedSeason: string;
+  onSeasonChange: (season: string) => void;
+
+  pollinationDateList: string[];
+  selectedPollinationDate: string;
+  onPollinationDateChange: (date: string) => void;
+
   deviceList: string[];
   selectedDeviceId: string;
   onDeviceChange: (id: string) => void;
@@ -26,6 +34,8 @@ interface Props {
 }
 
 export const ControlPanel: React.FC<Props> = ({
+  seasonList, selectedSeason, onSeasonChange,
+  pollinationDateList, selectedPollinationDate, onPollinationDateChange,
   deviceList, selectedDeviceId, onDeviceChange,
   melons, selectedMelonId, onMelonChange,
   selectedDateIndex, dateList, onDateChange,
@@ -37,7 +47,30 @@ export const ControlPanel: React.FC<Props> = ({
       <Stack direction="row" spacing={3} alignItems="center" flexWrap="wrap">
         
         <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>デバイスID</InputLabel>
+          <InputLabel>Season</InputLabel>
+          <Select
+            value={selectedSeason}
+            label="Season"
+            onChange={(e: SelectChangeEvent) => onSeasonChange(e.target.value)}
+          >
+            {seasonList.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 140 }}>
+          <InputLabel>交配日</InputLabel>
+          <Select
+            value={selectedPollinationDate}
+            label="交配日"
+            onChange={(e: SelectChangeEvent) => onPollinationDateChange(e.target.value)}
+            disabled={pollinationDateList.length === 0}
+          >
+            {pollinationDateList.map(d => <MenuItem key={d} value={d}>{d}</MenuItem>)}
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>Device ID</InputLabel>
           <Select
             value={selectedDeviceId}
             label="Device ID"
@@ -48,7 +81,7 @@ export const ControlPanel: React.FC<Props> = ({
         </FormControl>
 
         <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>メロンID</InputLabel>
+          <InputLabel>Melon ID</InputLabel>
           <Select
             value={selectedMelonId}
             label="Melon ID"
@@ -99,7 +132,7 @@ export const ControlPanel: React.FC<Props> = ({
                 color="primary"
               />
             }
-            label={viewMode === 'realtime' ? "リアルタイム計測状況" : "生育サマリー"}
+            label={viewMode === 'realtime' ? "リアルタイム" : "サマリー"}
           />
         </Box>
 
