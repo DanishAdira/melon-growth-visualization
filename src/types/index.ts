@@ -7,6 +7,15 @@ export interface MelonInfo {
   deviceID_cameraID: string;
 }
 
+export interface MelonRegistryItem {
+  melonID: string;
+  season: string;
+  deviceID: string;
+  pollinationDate: string;
+  status: string;
+  harvestDate?: string;
+}
+
 export interface MetricParams {
   L: number;
   k: number;
