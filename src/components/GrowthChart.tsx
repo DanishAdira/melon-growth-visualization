@@ -56,7 +56,8 @@ export const GrowthChart: React.FC<Props> = ({ summaries, idealModels, currentDa
       const dailySummary = summaries.find(s => s.dap === d);
       if (dailySummary?.actual_metrics) {
         const m = dailySummary.actual_metrics;
-        point.volume_actual = m.estimated_volume_px3;
+        // point.volume_actual = m.estimated_volume_px3;
+        point.relative_growth_actual = m.relative_growth;
         point.density_actual = m.density;
         point.branch_actual = m.branch_points;
         point.h_actual = m.h_component_px;
@@ -102,7 +103,7 @@ export const GrowthChart: React.FC<Props> = ({ summaries, idealModels, currentDa
       
       {/* Chart 1: Volume */}
       <div className="chart-container">
-        <Typography variant="subtitle2" align="center">肥大度合い (推定体積)</Typography>
+        <Typography variant="subtitle2" align="center">肥大度合い (相対的な生長度合い)</Typography>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} syncId="melonGrowth">
             <CartesianGrid strokeDasharray="3 3" />
@@ -110,7 +111,7 @@ export const GrowthChart: React.FC<Props> = ({ summaries, idealModels, currentDa
             
             {/* 左軸: 幅を固定 */}
             <YAxis 
-              tickFormatter={(val) => (val / 1000000).toFixed(0) + 'M'} 
+              tickFormatter={(val) => val.toFixed(1) + 'x'} 
               width={Y_AXIS_WIDTH}
             />
             {/* ★修正: レイアウトを揃えるためのダミー右軸 */}
@@ -122,13 +123,13 @@ export const GrowthChart: React.FC<Props> = ({ summaries, idealModels, currentDa
               axisLine={false} 
             />
 
-            <Tooltip labelFormatter={(d) => `DAP: ${d}`} />
+            <Tooltip labelFormatter={(d) => `DAP: ${d}`} formatter={(value: number) => [value.toFixed(2) + ' 倍', '実測値']} />
             <Legend verticalAlign="top" height={36}/>
             
             {renderCurrentLine()} 
             
-            <Line type="monotone" dataKey="volume_ideal" stroke="#8884d8" dot={false} name="理想値" strokeWidth={2} />
-            <Scatter dataKey="volume_actual" fill="#8884d8" name="実測値" />
+            {/* <Line type="monotone" dataKey="volume_ideal" stroke="#8884d8" dot={false} name="理想値" strokeWidth={2} /> */}
+            <Scatter dataKey="relative_growth_actual" fill="#8884d8" name="実測値（倍率）" />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

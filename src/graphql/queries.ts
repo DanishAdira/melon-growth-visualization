@@ -73,6 +73,7 @@ export const getGrowthSummaries = /* GraphQL */ `
           density
           branch_points
           estimated_volume_px3
+          relative_growth
           fruit_area_px
           h_component_px
           v_component_px
@@ -85,6 +86,7 @@ export const getGrowthSummaries = /* GraphQL */ `
           density
           branch_points
           estimated_volume_px3
+          relative_growth
           fruit_area_px
           h_component_px
           v_component_px

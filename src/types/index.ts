@@ -31,9 +31,10 @@ export interface DailyMetrics {
   density: number;
   branch_points: number;
   estimated_volume_px3: number;
+  relative_growth?: number;
   h_component_px: number;
   v_component_px: number;
-  [key: string]: number;
+  [key: string]: number | undefined;
 }
 
 export interface GrowthSummary {
