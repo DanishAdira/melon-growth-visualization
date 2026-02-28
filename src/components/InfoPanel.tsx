@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Chip, Button, Box } from '@mui/material';
+import { Paper, Typography, Chip, Box } from '@mui/material';
 import Grid from '@mui/material/Grid'; // Grid v2
 import { GrowthSummary, MelonInfo } from '../types';
 
@@ -11,7 +11,8 @@ interface Props {
 
 export const InfoPanel: React.FC<Props> = ({ info, summary, onCheckStatus }) => {
   const metrics = [
-    { key: 'estimated_volume_px3', label: '肥大度合い (推定体積)' },
+    { key: 'relative_growth', label: '相対的な生長度合い' },
+    { key: 'estimated_volume_px3', label: '推定体積' },
     { key: 'density', label: '網目密度' },
     { key: 'branch_points', label: '分岐点数' },
     { key: 'h_component_px', label: '網目横成分' },
@@ -39,21 +40,36 @@ export const InfoPanel: React.FC<Props> = ({ info, summary, onCheckStatus }) => 
       <Grid container spacing={1} sx={{ width: '100%' }}>
         {metrics.map((m) => {
           const val = summary.actual_metrics?.[m.key] ?? 0;
-          const diff = summary.deviation?.[m.key] ?? 0;
+          
+          const hasDeviation = m.key !== 'relative_growth' && m.key !== 'estimated_volume_px3';
+          const diff = hasDeviation ? (summary.deviation?.[m.key] ?? 0) : 0;
           const color = diff >= 0 ? 'success' : 'error';
+
+          let displayValue = val.toFixed(2);
+          if (m.key === 'relative_growth') {
+            displayValue = `${val.toFixed(2)}x`;
+          } else if (m.key === 'estimated_volume_px3') {
+            // 100万(Million)で割って「M」をつける (例: 78149305 -> 78.1M)
+            displayValue = `${(val / 1000000).toFixed(1)}M`;
+          }
 
           return (
             <Grid key={m.key} size={{ xs: 6 }}>
               <Paper variant="outlined" sx={{ p: 1 }}>
                 <Typography variant="caption" color="textSecondary">{m.label}</Typography>
                 <Typography variant="body1">
-                  {val.toFixed(2)}
-                  <Chip
-                    label={`${diff > 0 ? '+' : ''}${diff.toFixed(2)}`}
-                    color={color}
-                    size="small"
-                    sx={{ ml: 1, height: 20, fontSize: '0.6rem' }}
-                  />
+                  
+                  {displayValue}
+                  
+                  {/* 偏差がある指標のみChipを描画 */}
+                  {hasDeviation && (
+                    <Chip
+                      label={`${diff > 0 ? '+' : ''}${diff.toFixed(2)}`}
+                      color={color}
+                      size="small"
+                      sx={{ ml: 1, height: 20, fontSize: '0.6rem' }}
+                    />
+                  )}
                 </Typography>
               </Paper>
             </Grid>
