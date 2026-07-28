@@ -1,46 +1,105 @@
-# Getting Started with Create React App
+# メロン生育過程評価システム（Melonyzer）
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+温室メロン栽培における生育過程を可視化・評価するWebアプリケーションです．深層学習・IoT（PiNode3を使用）・AWS（Amazon Web Services）を用いたメロン生育過程評価システム（通称Melonyzer）のフロントエンドを構成します．
 
-## Available Scripts
+本リポジトリは，IPSJ 第88回全国大会「網目構造と生長曲線に基づくメロン生育過程の可視化」の成果物として公開しているものです．
 
-In the project directory, you can run:
+## システム概要図
 
-### `npm start`
+本システムの**クライアント層（Webアプリケーション）**に相当します．
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+| 層 | 役割 |
+| --- | --- |
+| **エッジ層** | 計測デバイス (PiNode3) による画像・環境データの収集 |
+| **クラウド処理層** | AWS上のサーバレスパイプラインによる深層学習推論と時系列処理 |
+| **クライアント層** | 解析結果を可視化するWebアプリケーション |
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+<img width="710" height="559" alt="Image" src="https://github.com/user-attachments/assets/2cfe7494-b1e5-40f8-a486-0ee19d46b1bd" />
 
-### `npm test`
+### クラウド処理層の概要（参考）
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+本システムがAWS AppSync経由で参照するDynamoDBのデータは，AWS上で以下のように処理されます．これらの処理は1日に1回や勘にまとめてバッチ処理で行われます．
 
-### `npm run build`
+- **画像解析**：Amazon SageMakerAI上で，YOLO-11nsegによる果実領域の検出とU-Netによる網目領域の検出
+- **外観特徴算出**：網目密度・分岐点数・縦/横方向の網目形成量・推定体積などを算出
+- **日次サマリ**：時系列ノイズ処理を行い，1日の生育サマリーを算出
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## リポジトリ構成
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+├── amplify/                       # AWS Amplify プロジェクト設定
+├── public/                        # 静的ファイル
+├── src/
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── AppHeader.tsx      # アプリケーションヘッダー
+│   │   │   └── AppFooter.tsx      # アプリケーションフッター
+│   │   ├── ControlPanel.tsx       # 季節・交配日・デバイス・メロン選択パネル
+│   │   ├── InfoPanel.tsx          # メロン情報・生長モデル差分表示
+│   │   ├── ImagePanel.tsx         # 撮影画像・網目マスク表示 (S3 署名付き URL)
+│   │   ├── GrowthChart.tsx        # 外観特徴推移 + 生長モデル曲線
+│   │   └── RealtimeDashboard.tsx  # リアルタイム環境データ・最新画像表示
+│   ├── graphql/
+│   │   └── queries.ts             # AppSync GraphQL クエリ定義
+│   ├── types.ts                   # 型定義
+│   ├── App.tsx                    # ルートコンポーネント
+│   └── index.tsx                  # エントリポイント
+├── package.json
+└── README.md
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
 
-### `npm run eject`
+## UI
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 生育サマリー確認画面
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+計測中のメロンごとの外観特徴の（網目密度・分岐点数・縦/横方向の網目形成量・推定体積）の推移を，各季節ごとの代表的な生長モデルと重ねてプロットします．
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+<img width="3196" height="1647" alt="Image" src="https://github.com/user-attachments/assets/1befd7cf-18c1-47dc-b295-a2c6c0b4bdcc" />
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### リアルタイム栽培状況確認画面
 
-## Learn More
+計測ハウス内の最新の温湿度，外部照度，内部照度，直近数時間の時系列推移，および定点カメラ（Spresense）の最新画像を表示します．
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<img width="3195" height="1522" alt="Image" src="https://github.com/user-attachments/assets/00b03d5a-9a23-4aaf-871d-b18d0a31222e" />
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## セットアップ（研究室向け）
+
+### 前提条件
+
+- Node.js 18 以上
+- npm
+
+### 手順
+
+```bash
+# リポジトリのクローン
+git clone https://github.com/DanishAdira/melon-growth-visualization.git
+cd melon-growth-visualization
+
+# 依存関係のインストール
+npm install
+
+# 開発サーバの起動
+npm start
+```
+
+### 環境変数
+
+本番環境では**AWS Amplifyのホスティングで環境変数を管理**しています．ローカルで動作確認する際は，リポジトリのルートに`.env`ファイルを作成してください．
+
+```env
+REACT_APP_AWS_REGION=ap-northeast-1
+REACT_APP_APPSYNC_ENDPOINT=<AppSync GraphQL エンドポイント URL>
+REACT_APP_APPSYNC_API_KEY=<AppSync API キー>
+REACT_APP_COGNITO_USER_POOL_ID=<Cognito User Pool ID>
+REACT_APP_COGNITO_APP_CLIENT_ID=<Cognito App Client ID>
+REACT_APP_S3_BUCKET_NAME=<画像・マスクを配置している S3 バケット名>
+```
+
+## デプロイ
+
+AWS Amplify Hostingによりデプロイしています．`main` ブランチへのマージをトリガーに自動ビルド・デプロイされる設定になっています．
+
+### 謝辞
+本研究は，JST 創発的研究支援事業 (JP-MJFR201B) の支援を受けたものです．
