@@ -7,6 +7,7 @@ import {
     CartesianGrid,
     Tooltip,
     Legend,
+    ReferenceLine,
     ResponsiveContainer,
 } from 'recharts';
 import { Typography } from '@mui/material';
@@ -17,11 +18,13 @@ import { toCompactDateStr } from '../../utils/dateTime';
 interface Props {
     snapshots: HourlyMelonSnapshot[];
     selectedDate: string; // "YYYY-MM-DD"
+    selectedHour?: number | null;  // 現在選択中の時刻（画像と連動する縦破線）
 }
 
 const Y_AXIS_WIDTH = 50;
+const CURSOR_COLOR = '#1976d2';
 
-export const HourlyGrowthChart: React.FC<Props> = ({ snapshots, selectedDate }) => {
+export const HourlyGrowthChart: React.FC<Props> = ({ snapshots, selectedDate, selectedHour }) => {
     const chartData = useMemo(() => {
         const compact = toCompactDateStr(selectedDate);
         return snapshots
@@ -47,6 +50,18 @@ export const HourlyGrowthChart: React.FC<Props> = ({ snapshots, selectedDate }) 
             </Typography>
         );
     }
+
+    const renderCursorLine = (yAxisId?: string) =>
+        selectedHour != null ? (
+            <ReferenceLine
+                x={selectedHour}
+                stroke={CURSOR_COLOR}
+                strokeDasharray="4 3"
+                strokeWidth={1.5}
+                yAxisId={yAxisId}
+                ifOverflow="visible"
+            />
+        ) : null;
 
     return (
         <>
@@ -75,6 +90,8 @@ export const HourlyGrowthChart: React.FC<Props> = ({ snapshots, selectedDate }) 
                         />
                         <Tooltip labelFormatter={(h) => `${h}時`} />
                         <Legend verticalAlign="top" height={28} wrapperStyle={{ fontSize: '0.8rem' }} />
+
+                        {renderCursorLine()}
 
                         <Line
                             type="monotone"
@@ -127,6 +144,8 @@ export const HourlyGrowthChart: React.FC<Props> = ({ snapshots, selectedDate }) 
                         />
                         <Tooltip labelFormatter={(h) => `${h}時`} />
                         <Legend verticalAlign="top" height={28} wrapperStyle={{ fontSize: '0.8rem' }} />
+
+                        {renderCursorLine('left')}
 
                         <Line
                             yAxisId="left"
@@ -182,6 +201,8 @@ export const HourlyGrowthChart: React.FC<Props> = ({ snapshots, selectedDate }) 
                             formatter={(v: number) => [`${v.toFixed(2)}x`, '相対肥大度合い']}
                         />
                         <Legend verticalAlign="top" height={28} wrapperStyle={{ fontSize: '0.8rem' }} />
+
+                        {renderCursorLine()}
 
                         <Line
                             type="monotone"

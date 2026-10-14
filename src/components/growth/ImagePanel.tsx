@@ -1,10 +1,22 @@
 import React from 'react';
 import { Paper, Stack, Typography, Box, Skeleton } from '@mui/material';
 import { useImageUrls } from '../../hooks/useImageUrls';
-import type { DailyMelonSnapshot } from '../../types/melon';
+
+/**
+ * 画像表示用に最小化した汎用スナップショット型。
+ * DailyMelonSnapshot / HourlyMelonSnapshot の両方から渡せる。
+ */
+export interface ImageSnapshot {
+    melonID: string;
+    /** キャッシュキー用の時刻識別子 (dateJST or hourTimestamp) */
+    timeKey: string;
+    representative_s3Key?: string;
+    representative_mask_s3_key?: string;
+    representative_capturedAt?: string;
+}
 
 interface Props {
-    snapshot: DailyMelonSnapshot | null;
+    snapshot: ImageSnapshot | null;
 }
 
 export const ImagePanel: React.FC<Props> = ({ snapshot }) => {
@@ -13,7 +25,7 @@ export const ImagePanel: React.FC<Props> = ({ snapshot }) => {
         snapshot?.representative_mask_s3_key,
     ].filter((k): k is string => !!k);
 
-    const cacheKey = snapshot ? `${snapshot.melonID}_${snapshot.dateJST}` : '';
+    const cacheKey = snapshot ? `${snapshot.melonID}_${snapshot.timeKey}` : '';
 
     const { urls, loading } = useImageUrls(keys, cacheKey);
     const [originalUrl, maskUrl] = urls;
